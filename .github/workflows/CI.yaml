@@ -32,3 +32,15 @@ jobs:
           python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
       - name: Run tests
         run: PYTHONPATH=$PYTHONPATH:. pytest
+
+  bandit:
+    needs: test
+    name: Bandit 
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+      - name: Bandit Analysis
+        uses: PyCQA/bandit-action@v1
