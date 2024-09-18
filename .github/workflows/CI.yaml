@@ -47,7 +47,7 @@ jobs:
 
   dependency_check:
     needs: test
-    name: Analise Dependency-Check
+    name: Analises Dependency-Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -74,5 +74,5 @@ jobs:
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
-          name: Dependency-Check relatorio
-          path: ${{github.workspace}}/relatorio
+          name: Dependency-Check report
+          path: ${{github.workspace}}/reports
