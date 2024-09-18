@@ -31,4 +31,4 @@ jobs:
         run: |
           python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
       - name: Run tests
-        run: PYTHONPATH=$PYTHONPATH:. pytest
+        run: PYTHONPATH=$PYTHONPATH:. pytest todo_project/tests
