@@ -5,9 +5,7 @@ on:
     branches: ["CI"]
 
 permissions:
-  issues: write
   contents: write
-  pull-requests: write
 
 jobs:
 
@@ -28,10 +26,9 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-         python-version: "3.9"
+          python-version: "3.9"
       - name: Install dependencies
-        run: | 
-            python -m pip install pytest 
-            python -m pip install Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
+        run: |
+          python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
       - name: Run tests
         run: PYTHONPATH=$PYTHONPATH:. pytest
