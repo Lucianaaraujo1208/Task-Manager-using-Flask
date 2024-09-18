@@ -106,3 +106,22 @@ jobs:
         with:
           name: ZAP Scan Report
           path: report_html.html  # Ou o caminho onde o relatório do ZAP foi salvo
+
+  pull_request:
+    needs: zap
+    name: Deploy Stage para Simulação
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run the Action
+        uses: devops-infra/action-pull-request@v0.5.5
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          title: pull automatic
+          target_branch: revisao
+          assignee: ${{ github.actor }}
+          label: automatic
+          get_diff: true
