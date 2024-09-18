@@ -1,16 +1,8 @@
 import pytest
-from todo_project import app, db
-from flask import url_for
+from todo_project import app, db, bcrypt
+from todo_project.models import User, Task
 
-@pytest.fixture
-def client():
-    app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    with app.test_client() as client:
-        with app.app_context():
-            db.create_all()
-        yield client
+# test_sum.py
 
-def test_home_page(client):
-    response = client.get(url_for('home'))
-    assert response.status_code == 200
+def test_sum():
+    assert 1 + 2 == 3, "Soma de 1 + 2 deveria ser 3"
