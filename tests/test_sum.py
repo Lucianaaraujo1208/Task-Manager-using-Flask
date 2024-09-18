@@ -1,3 +1,7 @@
+import pytest
+from todo_project import app, db, bcrypt
+from todo_project.models import User, Task
+
 # test_sum.py
 
 def test_sum():
