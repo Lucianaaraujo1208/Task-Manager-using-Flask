@@ -4,10 +4,14 @@ on:
   push:
     branches: ["CI"]
 
+
 permissions:
   contents: write
 
+
 jobs:
+
+
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -16,7 +20,9 @@ jobs:
       - name: Build the Docker image
         run: docker build -t $(date +%s) .
 
+
   test:
+    needs: build
     name: Testes
     runs-on: ubuntu-latest
     steps:
@@ -28,18 +34,5 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
-      - name: Run Test: About Page
-        run: |
-          PYTHONPATH=$PYTHONPATH:. pytest -k "test_about_page"
-      - name: Run Test: Home Page
-        run: |
-          PYTHONPATH=$PYTHONPATH:. pytest -k "test_home_page"
-      - name: Run Test: Login Page
-        run: |
-          PYTHONPATH=$PYTHONPATH:. pytest -k "test_login_page"
-      - name: Run Test: Register Page
-        run: |
-          PYTHONPATH=$PYTHONPATH:. pytest -k "test_register_page"
-      - name: Run Test: All Tasks Page Not Logged In
-        run: |
-          PYTHONPATH=$PYTHONPATH:. pytest -k "test_all_tasks_page_redirects_when_not_logged_in"
+      - name: Run tests
+        run: PYTHONPATH=$PYTHONPATH:. pytest
