@@ -1,5 +1,6 @@
 name: Estudo de Caso HDB
 
+
 on:
   push:
     branches: ["CI"]
@@ -14,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build the Docker image
-        run: docker build -t myapp:latest .
+        run: docker build -t $(date +%s) .
 
   test:
     needs: build
@@ -30,7 +31,8 @@ jobs:
         run: |
           python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
       - name: Run all tests
-        run: pytest
+        run: |
+          PYTHONPATH=$PYTHONPATH:. pytest
 
   run-test-1:
     needs: test
@@ -45,69 +47,6 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
-      - name: Run about page test
-        run: pytest -k "test_about_page"
-
-  run-test-2:
-    needs: test
-    name: Test: Home Page
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
-      - name: Install dependencies
+      - name: Run Test: About Page
         run: |
-          python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
-      - name: Run home page test
-        run: pytest -k "test_home_page"
-
-  run-test-3:
-    needs: test
-    name: Test: Login Page
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
-      - name: Install dependencies
-        run: |
-          python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
-      - name: Run login page test
-        run: pytest -k "test_login_page"
-
-  run-test-4:
-    needs: test
-    name: Test: Register Page
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
-      - name: Install dependencies
-        run: |
-          python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
-      - name: Run register page test
-        run: pytest -k "test_register_page"
-
-  run-test-5:
-    needs: test
-    name: Test: All Tasks Page
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
-      - name: Install dependencies
-        run: |
-          python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
-      - name: Run all tasks page test
-        run: pytest -k "test_all_tasks_page_redirects_when_not_logged_in"
+          PYTHONPATH=$PYTHONPATH:. pytest -k "test_about_page"
