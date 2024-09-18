@@ -42,4 +42,4 @@ def test_all_tasks_page_redirects_when_not_logged_in(client):
     """Teste para verificar se a página de 'all_tasks' redireciona quando o usuário não está logado."""
     response = client.get('/all_tasks', follow_redirects=True)
     assert response.status_code == 200
-    assert b'Please log in' in response.data  # Verifica se há uma mensagem de login na página
+    assert b'Please log in' in response.data  # Verifica se há uma mensagem de login na página.
