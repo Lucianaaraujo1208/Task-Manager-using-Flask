@@ -1,12 +1,11 @@
-name: Estudo de caso HdB
+name: Estudo
 
 on:
   push:
     branches: ["CI"]
+
 permissions:
-  issues: write
   contents: write
-  pull-requests: write
 
 jobs:
 
@@ -29,8 +28,7 @@ jobs:
         with:
           python-version: "3.9"
       - name: Install dependencies
-        run: | 
-          python -m pip install pytest 
-          python -m pip install Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
+        run: |
+          python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
       - name: Run tests
         run: PYTHONPATH=$PYTHONPATH:. pytest
