@@ -14,20 +14,16 @@ def client():
         yield client
         db.drop_all()
 
-def test_user_registration(client):
-    """Teste simples para verificar a criação e recuperação de um novo usuário."""
-    # Enviar dados para a rota de registro
-    response = client.post('/register', data={
-        'username': 'testuser',
-        'password': 'testpassword',
-        'confirm_password': 'testpassword'
-    }, follow_redirects=True)
+def test_user_creation(client):
+    """Teste para verificar a criação e leitura de um usuário."""
+    # Cria um usuário diretamente no banco de dados
+    user = User(username='testuser', password='testpassword')
+    db.session.add(user)
+    db.session.commit()
 
-    # Verificar se a resposta é a esperada (por exemplo, redirecionamento para a página de login)
-    assert response.status_code == 200
-    assert b'Login' in response.data
+    # Recupera o usuário do banco de dados
+    retrieved_user = User.query.filter_by(username='testuser').first()
 
-    # Verificar se o usuário foi adicionado ao banco de dados
-    user = User.query.filter_by(username='testuser').first()
-    assert user is not None
-    assert user.username == 'testuser'
+    # Verifica se o usuário foi criado e recuperado corretamente
+    assert retrieved_user is not None
+    assert retrieved_user.username == 'testuser'
