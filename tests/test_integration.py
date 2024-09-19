@@ -4,7 +4,7 @@ from todo_project.models import User
 
 @pytest.fixture
 def client():
-    """Configura o cliente de teste e o banco de dados em memória."""
+    """Configurar o cliente de teste e o banco de dados em memória."""
     app.config['TESTING'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     client = app.test_client()
