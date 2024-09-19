@@ -16,7 +16,7 @@ def client():
 
 def test_user_creation(client):
     """Teste para verificar a criação e leitura de um usuário."""
-    # Cria um usuário diretamente no banco de dados
+    # Criar um usuário diretamente no banco de dados
     user = User(username='testuser', password='testpassword')
     db.session.add(user)
     db.session.commit()
