@@ -22,11 +22,14 @@ def test_user_registration(client):
         'confirm_password': 'newpassword'
     }, follow_redirects=True)
 
+    # Imprimir a resposta para depuração
+    print(response.data.decode())
+
     # Verificar se a resposta é a esperada (redirecionamento para a página de login, por exemplo)
     assert response.status_code == 200
     assert b'Login' in response.data
 
     # Verificar se o usuário foi adicionado ao banco de dados
     user = User.query.filter_by(username='newuser').first()
-    assert user is not None
-    assert user.check_password('newpassword')  # Verificar se a senha foi armazenada corretamente
+    assert user is not None, "O usuário não foi adicionado ao banco de dados."
+    assert user.check_password('newpassword'), "A senha não foi armazenada ou verificada corretamente."
