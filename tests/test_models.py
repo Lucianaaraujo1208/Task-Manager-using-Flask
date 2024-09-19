@@ -2,6 +2,8 @@ import pytest
 from todo_project import app, db
 from todo_project.models import User, Task
 
+# test_models.py
+
 def test_password_hashing():
     """Teste unitário para verificar a criptografia e verificação de senha"""
     user = User(username='testuser', password='testpassword')
