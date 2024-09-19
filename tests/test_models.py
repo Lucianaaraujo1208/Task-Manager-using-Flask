@@ -1,8 +1,7 @@
-import pytest
-from todo_project import app, db
-from todo_project.models import User, Task
-
 # test_password_hashing.py
+
+import pytest
+from werkzeug.security import generate_password_hash, check_password_hash
 
 def test_password_hashing():
     """Teste unitário simples para verificar a criptografia e verificação de senha"""
