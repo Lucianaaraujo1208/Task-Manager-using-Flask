@@ -1,25 +1,29 @@
-from flask import render_template, redirect, url_for, flash
+import pytest
 from todo_project import app, db
 from todo_project.models import User
-from werkzeug.security import generate_password_hash
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        confirm_password = request.form['confirm_password']
-        
-        if password != confirm_password:
-            flash('Passwords do not match!')
-            return redirect(url_for('register'))
-        
-        hashed_password = generate_password_hash(password)
-        new_user = User(username=username, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-        
-        flash('Account created successfully!')
-        return redirect(url_for('login'))
-    
-    return render_template('register.html')
+@pytest.fixture
+def client():
+    app.config['TESTING'] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    client = app.test_client()
+
+    with app.app_context():
+        db.create_all()
+        yield client
+        db.drop_all()
+
+def test_user_registration(client):
+    """Teste de integração para verificar o registro e a criação de um novo usuário"""
+    response = client.post('/register', data={
+        'username': 'newuser',
+        'password': 'newpassword',
+        'confirm_password': 'newpassword'
+    }, follow_redirects=True)
+
+    assert response.status_code == 200
+    assert b'Login' in response.data
+
+    user = User.query.filter_by(username='newuser').first()
+    assert user is not None
+    assert user.check_password('newpassword')
