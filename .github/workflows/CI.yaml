@@ -101,12 +101,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: "http://localhost:5000"
-          # issue: false  # Desativar a criação automática de issues
-      -  #name: Upload ZAP report
-        #uses: actions/upload-artifact@v4
-        #with:
-        #name: ZAP Scan Report
-        #path: report_html.html  # Ou o caminho onde o relatório do ZAP foi salvo
+          issue: false  # Desativar a criação automática de issues
+      - name: Upload ZAP report
+        uses: actions/upload-artifact@v4
+        with:
+        name: ZAP Scan Report
+        path: report_html.html  # Ou o caminho onde o relatório do ZAP foi salvo
 
   pull_request:
     needs: zap
