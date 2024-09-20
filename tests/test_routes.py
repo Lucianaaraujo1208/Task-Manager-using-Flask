@@ -59,14 +59,14 @@ def test_complete_functional_workflow(client):
     # 5. Editar a tarefa adicionada
     task = Task.query.filter_by(content='Comprar leite').first()  # Buscar tarefa recém-criada
     response = client.post(f'/all_tasks/{task.id}/update_task', data={
-        'task_name': 'Comprar café'
+        'task_name': 'Comprar queijo'  # Trocar para "Comprar queijo"
     }, follow_redirects=True)
     assert response.status_code == 200  # Verificar sucesso na edição
     assert b'Task Updated' in response.data  # Verificar mensagem de sucesso na edição
 
     # 6. Verificar se a edição da tarefa foi aplicada
     response = client.get('/all_tasks', follow_redirects=True)
-    assert b'Comprar caf\xc3\xa9' in response.data  # Codificação UTF-8 do 'é'
+    assert b'Comprar queijo' in response.data  # Verifica se a tarefa aparece na lista
     assert b'Comprar leite' not in response.data  # O nome antigo não deve mais aparecer
 
     # 7. Excluir a tarefa
@@ -76,7 +76,7 @@ def test_complete_functional_workflow(client):
 
     # 8. Verificar se a tarefa foi removida
     response = client.get('/all_tasks', follow_redirects=True)
-    assert b'Comprar caf\xc3\xa9' in response.data  # Codificação UTF-8 do 'é'
+    assert b'Comprar queijo' not in response.data  # A tarefa não deve mais aparecer
 
     # 9. Fazer logout do usuário
     response = logout(client)
