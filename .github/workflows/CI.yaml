@@ -30,6 +30,7 @@ jobs:
         with:
           python-version: "3.9"
       - name: Install dependencies
+      
         run: |
           python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
       - name: Run tests
@@ -101,12 +102,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: "http://localhost:5000"
-          issue: false  # Desativar a criação automática de issues
-      - name: Upload ZAP report
-        uses: actions/upload-artifact@v4
-        with:
-          name: ZAP Scan Report
-          path: report_html.html  # Ou o caminho onde o relatório do ZAP foi salvo
+         # issue: false  # Desativar a criação automática de issues
+      - #name: Upload ZAP report
+        #uses: actions/upload-artifact@v4
+        #with:
+          #name: ZAP Scan Report
+          #path: report_html.html  # Ou o caminho onde o relatório do ZAP foi salvo
 
   pull_request:
     needs: zap
