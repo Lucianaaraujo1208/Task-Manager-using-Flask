@@ -2,7 +2,7 @@ name: Estudo de caso HDB
 
 on:
   push:
-    branches: ["ci"]
+    branches: ["CI"]
 
 permissions:
   issues: write
