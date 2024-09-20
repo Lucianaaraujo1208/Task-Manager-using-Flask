@@ -79,7 +79,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Dependency-Check report
-          path: ${{github.workspace}}/reports
+          path: ${{ github.workspace }}/reports
 
   zap:
     needs: 
@@ -101,7 +101,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: "http://localhost:5000"
-          issue: false  # Desativar a criação automática de issues
+          allow_issue_writing: false  # Desativar a criação automática de issues
       - name: Upload ZAP report
         uses: actions/upload-artifact@v4
         with:
