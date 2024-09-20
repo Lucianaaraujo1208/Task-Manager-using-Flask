@@ -66,7 +66,7 @@ def test_complete_functional_workflow(client):
 
     # 6. Verificar se a edição da tarefa foi aplicada
     response = client.get('/all_tasks', follow_redirects=True)
-    assert b'Comprar café' in response.data  # A tarefa deve ser exibida com o novo nome
+    assert b'Comprar caf\xc3\xa9' in response.data  # Codificação UTF-8 do 'é'
     assert b'Comprar leite' not in response.data  # O nome antigo não deve mais aparecer
 
     # 7. Excluir a tarefa
