@@ -1,8 +1,8 @@
-name: Estudo
+name: Estudo de caso HDB
 
 on:
   push:
-    branches: ["CI"]
+    branches: ["ci"]
 
 permissions:
   issues: write
@@ -10,7 +10,6 @@ permissions:
   pull-requests: write
 
 jobs:
-
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -30,7 +29,7 @@ jobs:
         with:
           python-version: "3.9"
       - name: Install dependencies
-      
+
         run: |
           python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
       - name: Run tests
@@ -38,7 +37,7 @@ jobs:
 
   bandit:
     needs: test
-    name: Bandit 
+    name: Bandit
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -83,7 +82,7 @@ jobs:
           path: ${{github.workspace}}/reports
 
   zap:
-    needs: 
+    needs:
       - bandit
       - dependency_check
     name: Relatório Zap
@@ -96,18 +95,18 @@ jobs:
       - name: Run application
         run: |
           docker run -d -p 5000:5000 --name task-manager task-image
-          sleep 30  # Aumentar tempo de espera para garantir que a aplicação está pronta
+          sleep 10  
       - name: Zap Scan
         uses: zaproxy/action-full-scan@v0.10.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: "http://localhost:5000"
-         # issue: false  # Desativar a criação automática de issues
-      - #name: Upload ZAP report
+          # issue: false  # Desativar a criação automática de issues
+      -  #name: Upload ZAP report
         #uses: actions/upload-artifact@v4
         #with:
-          #name: ZAP Scan Report
-          #path: report_html.html  # Ou o caminho onde o relatório do ZAP foi salvo
+        #name: ZAP Scan Report
+        #path: report_html.html  # Ou o caminho onde o relatório do ZAP foi salvo
 
   pull_request:
     needs: zap
