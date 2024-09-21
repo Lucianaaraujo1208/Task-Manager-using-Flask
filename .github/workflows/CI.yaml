@@ -30,6 +30,7 @@ jobs:
           python-version: "3.9"
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
       - name: Run tests
         run: PYTHONPATH=$PYTHONPATH:. pytest
@@ -64,7 +65,7 @@ jobs:
           echo "JAVA_HOME is set to $JAVA_HOME"
           ls -la $JAVA_HOME
           java -version
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: python -m pip install -r requirements.txt
       - name: Create reports directory
         run: mkdir -p reports
@@ -127,8 +128,8 @@ jobs:
         uses: devops-infra/action-pull-request@v0.5.5
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          title: pull automatic
-          target_branch: revisao
+          title: "Pull Request Automático"
+          target_branch: "revisao"
           assignee: ${{ github.actor }}
-          label: automatic
+          label: "automatic"
           get_diff: true
