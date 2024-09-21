@@ -57,7 +57,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '11'  # Defina a versão do Java
-          distribution: 'temurin'  # Distribuição do Java (você pode usar 'adopt', 'zulu', etc.)
+          distribution: 'temurin'  # Distribuição do Java
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
       - name: Create reports directory
@@ -71,6 +71,7 @@ jobs:
           format: "HTML"
           out: "reports"
           args: >
+            --scan .  # Use o caminho correto para escanear
             --failOnCVSS 7
             --enableRetired
       - name: Upload results
