@@ -57,7 +57,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           java-version: '11'
-          distribution: 'temurin'  # Certificando-se de que a distribuição está definida
+          distribution: 'temurin'
       - name: Verify Java installation
         run: |
           echo "JAVA_HOME is set to $JAVA_HOME"
