@@ -123,6 +123,7 @@
   },
   "dependencies": {
     "bootstrap": "^5.3.3",
+    "follow-redirects": "^1.15.9",
     "minimatch": "^10.0.1"
   }
 }
