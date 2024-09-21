@@ -4,12 +4,14 @@ on:
   push:
     branches: ["CI"]
 
+
 permissions:
   issues: write
   contents: write
   pull-requests: write
 
 jobs:
+
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -29,14 +31,15 @@ jobs:
         with:
           python-version: "3.9"
       - name: Install dependencies
-        run: |
-          python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
+        run: | 
+          python -m pip install pytest 
+          python -m pip install Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
       - name: Run tests
         run: PYTHONPATH=$PYTHONPATH:. pytest
 
   bandit:
     needs: test
-    name: Bandit
+    name: Bandit (SAST)
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -45,29 +48,20 @@ jobs:
     steps:
       - name: Bandit Analysis
         uses: PyCQA/bandit-action@v1
-
+  
   dependency_check:
     needs: test
-    name: Análises Dependency-Check
+    name: Dependency-Check (SAST)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          java-version: "17"  # Atualizado para a versão 17.
-          distribution: "temurin"
-          cache: 'maven'
-      - name: Diagnóstico Java
-        run: |
-          echo "JAVA_HOME is set to $JAVA_HOME"
-          ls -la $JAVA_HOME
-          java -version
+          python-version: "3.9"
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
-      - name: Create reports directory
-        run: mkdir -p reports
       - name: Check dependency
         uses: dependency-check/Dependency-Check_Action@main
         id: Dependency-Check
@@ -77,21 +71,21 @@ jobs:
           format: "HTML"
           out: "reports"
           args: >
-            --scan ./*.py
-            --scan requirements.txt
+            --scan "**/*.py"
+            --scan "requirements.txt"
             --failOnCVSS 7
             --enableRetired
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
           name: Dependency-Check report
-          path: ${{ github.workspace }}/reports
-
+          path: ${{github.workspace}}/reports
+  
   zap:
-    needs:
+    needs: 
       - bandit
       - dependency_check
-    name: Relatório Zap
+    name: ZAP Scanning Report (DAST)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -101,22 +95,16 @@ jobs:
       - name: Run application
         run: |
           docker run -d -p 5000:5000 --name task-manager task-image
-          sleep 30  # Aumentar tempo de espera para garantir que a aplicação está pronta
+          sleep 10
       - name: Zap Scan
         uses: zaproxy/action-full-scan@v0.10.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: "http://localhost:5000"
-          issue: false
-      - name: Upload ZAP report
-        uses: actions/upload-artifact@v4
-        with:
-          name: ZAP Scan Report
-          path: report_html.html
 
-  pull_request:
+  create_pull_request:
     needs: zap
-    name: Simulação de Deploy
+    name: Deploy Stage para Simulação
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -127,8 +115,12 @@ jobs:
         uses: devops-infra/action-pull-request@v0.5.5
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          title: pull automatic
-          target_branch: revisao
+          title: Automatic pull request
+          target_branch: staging
           assignee: ${{ github.actor }}
           label: automatic
           get_diff: true
+
+
+
+
