@@ -46,8 +46,49 @@ jobs:
       - name: Bandit Analysis
         uses: PyCQA/bandit-action@v1
 
+  dependency_check:
+    needs: test
+    name: Análises Dependency-Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: 'maven'
+      - name: Diagnóstico Java
+        run: |
+          echo "JAVA_HOME is set to $JAVA_HOME"
+          ls -la $JAVA_HOME
+          java -version
+      - name: Install Python dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Create reports directory
+        run: mkdir -p reports
+      - name: Check dependency
+        uses: dependency-check/Dependency-Check_Action@main
+        id: Dependency-Check
+        with:
+          project: "Task-Manager-using-Flask"
+          path: "."  # Certifique-se de que o caminho está correto
+          format: "HTML"
+          out: "reports"
+          args: >
+            --scan ./*.py
+            --scan requirements.txt
+            --failOnCVSS 7
+            --enableRetired
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: Dependency-Check report
+          path: ${{ github.workspace }}/reports
+
   zap:
-    needs: [bandit]
+    needs: [bandit, dependency_check]
     name: Relatório Zap
     runs-on: ubuntu-latest
     steps:
