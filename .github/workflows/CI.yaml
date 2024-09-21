@@ -4,14 +4,12 @@ on:
   push:
     branches: ["CI"]
 
-
 permissions:
   issues: write
   contents: write
   pull-requests: write
 
 jobs:
-
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -31,9 +29,8 @@ jobs:
         with:
           python-version: "3.9"
       - name: Install dependencies
-        run: | 
-          python -m pip install pytest 
-          python -m pip install Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
+        run: |
+          python -m pip install -r requirements.txt
       - name: Run tests
         run: PYTHONPATH=$PYTHONPATH:. pytest
 
@@ -48,14 +45,13 @@ jobs:
     steps:
       - name: Bandit Analysis
         uses: PyCQA/bandit-action@v1
-  
+
   dependency_check:
     needs: test
     name: Dependency-Check (SAST)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -79,8 +75,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Dependency-Check report
-          path: ${{github.workspace}}/reports
-  
+          path: ${{ github.workspace }}/reports
+
   zap:
     needs: 
       - bandit
@@ -88,14 +84,13 @@ jobs:
     name: ZAP Scanning Report (DAST)
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       - name: Build Docker image
         run: docker build -t task-image .
       - name: Run application
         run: |
           docker run -d -p 5000:5000 --name task-manager task-image
-          sleep 10
+          sleep 10  # Aumente o tempo se necessário
       - name: Zap Scan
         uses: zaproxy/action-full-scan@v0.10.0
         with:
@@ -107,8 +102,7 @@ jobs:
     name: Deploy Stage para Simulação
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Run the Action
@@ -120,7 +114,3 @@ jobs:
           assignee: ${{ github.actor }}
           label: automatic
           get_diff: true
-
-
-
-
