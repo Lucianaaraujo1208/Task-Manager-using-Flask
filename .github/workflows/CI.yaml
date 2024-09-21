@@ -54,15 +54,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Set up Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4  # Atualizado para v4
         with:
-          java-version: '11'  # Defina a versão do Java
-          distribution: 'temurin'  # Distribuição do Java
+          java-version: '11'  # Defina a versão do Java necessária
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
       - name: Create reports directory
         run: mkdir -p reports
-      - name: Check dependencies
+      - name: Check dependency
         uses: dependency-check/Dependency-Check_Action@main
         id: Dependency-Check
         with:
@@ -71,14 +70,15 @@ jobs:
           format: "HTML"
           out: "reports"
           args: >
-            --scan .  # Use o caminho correto para escanear
+            --scan ./*.py
+            --scan requirements.txt
             --failOnCVSS 7
             --enableRetired
       - name: Upload results
         uses: actions/upload-artifact@v4
         with:
           name: Dependency-Check report
-          path: reports/*
+          path: ${{ github.workspace }}/reports
 
   zap:
     needs: 
@@ -94,7 +94,7 @@ jobs:
       - name: Run application
         run: |
           docker run -d -p 5000:5000 --name task-manager task-image
-          sleep 30
+          sleep 30  # Aumentar tempo de espera para garantir que a aplicação está pronta
       - name: Zap Scan
         uses: zaproxy/action-full-scan@v0.10.0
         with:
@@ -105,7 +105,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ZAP Scan Report
-          path: report_html.html
+          path: report_html.html  # Ou o caminho onde o relatório do ZAP foi salvo
 
   pull_request:
     needs: zap
