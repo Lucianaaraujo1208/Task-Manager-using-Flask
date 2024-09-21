@@ -56,7 +56,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: "17"  # Atualizado para a versão 17
+          java-version: "17"  # Atualizado para a versão 17.
           distribution: "temurin"
       - name: Diagnóstico Java
         run: |
