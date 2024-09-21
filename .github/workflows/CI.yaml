@@ -56,7 +56,8 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
-          java-version: '11'  # Certifique-se de que a versão é compatível com o Dependency-Check
+          java-version: '11'  # Defina a versão do Java
+          distribution: 'temurin'  # Distribuição do Java (você pode usar 'adopt', 'zulu', etc.)
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
       - name: Create reports directory
@@ -66,7 +67,7 @@ jobs:
         id: Dependency-Check
         with:
           project: "Task-Manager-using-Flask"
-          path: "."  # Caminho para o seu código
+          path: "."
           format: "HTML"
           out: "reports"
           args: >
@@ -76,7 +77,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Dependency-Check report
-          path: reports/*  # Ajuste para garantir que você está capturando o relatório correto
+          path: reports/*
 
   zap:
     needs: 
@@ -92,18 +93,18 @@ jobs:
       - name: Run application
         run: |
           docker run -d -p 5000:5000 --name task-manager task-image
-          sleep 30  # Aumentar tempo de espera para garantir que a aplicação está pronta
+          sleep 30
       - name: Zap Scan
         uses: zaproxy/action-full-scan@v0.10.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: "http://localhost:5000"
-          issue: false  # Desativar a criação automática de issues
+          issue: false
       - name: Upload ZAP report
         uses: actions/upload-artifact@v4
         with:
           name: ZAP Scan Report
-          path: report_html.html  # Ajuste conforme necessário
+          path: report_html.html
 
   pull_request:
     needs: zap
