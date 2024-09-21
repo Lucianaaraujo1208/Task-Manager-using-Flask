@@ -58,6 +58,7 @@ jobs:
         with:
           java-version: "17"  # Atualizado para a versão 17.
           distribution: "temurin"
+          cache: 'maven'
       - name: Diagnóstico Java
         run: |
           echo "JAVA_HOME is set to $JAVA_HOME"
