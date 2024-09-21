@@ -101,7 +101,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: "http://localhost:5000"
-          issue: false  # Desativar a criação automática de issues.
+          issue: false  # Desativar a criação automática de issues
       - name: Upload ZAP report
         uses: actions/upload-artifact@v4
         with:
