@@ -87,7 +87,7 @@
     "rtlcss": "^4.1.1",
     "sass": "^1.71.0",
     "sass-true": "^8.0.0",
-    "serve": "^14.2.3",
+    "serve": "^6.5.8",
     "shelljs": "^0.8.5",
     "stylelint": "^16.2.1",
     "stylelint-config-twbs-bootstrap": "^15.0.0",
