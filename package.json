@@ -123,5 +123,8 @@
     "peerDependencies": {
       "@popperjs/core": "^2.11.8"
     }
+  },
+  "dependencies": {
+    "minimatch": "^10.0.1"
   }
 }
