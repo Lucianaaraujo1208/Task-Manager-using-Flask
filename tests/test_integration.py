@@ -1,29 +1,60 @@
-import pytest
-from todo_project import app, db
+import unittest
+from flask import Flask
+from flask_login import LoginManager, login_user, logout_user
+from todo_project import db
 from todo_project.models import User
+from todo_project.forms import UpdateUserPassword
 
-@pytest.fixture
-def client():
-    """Configura o cliente de teste e o banco de dados em memória."""
-    app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    client = app.test_client()
+class TestPasswordUpdate(unittest.TestCase):
 
-    with app.app_context():
+    def setUp(self):
+        # Configuração do aplicativo Flask com banco de dados SQLite na memória
+        self.app = Flask(__name__)
+        self.app.config['TESTING'] = True
+        self.app.config['SECRET_KEY'] = 'test_secret_key'
+        self.app.config['WTF_CSRF_ENABLED'] = False  # Desabilitar CSRF para os testes
+        self.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+
+        # Inicializar as extensões
+        self.login_manager = LoginManager(self.app)
+        db.init_app(self.app)
+
+        # Criar o contexto do aplicativo
+        self.app_context = self.app.app_context()
+        self.app_context.push()
         db.create_all()
-        yield client
+
+        # Criar um usuário de teste
+        self.user = User(username='testuser', password='oldpassword')
+        db.session.add(self.user)
+        db.session.commit()
+
+    def tearDown(self):
+        db.session.remove()
         db.drop_all()
+        self.app_context.pop()
 
-def test_user_creation(client):
-    """Teste para verificar a criação e leitura de um usuário."""
-    # Criar um usuário diretamente no banco de dados
-    user = User(username='testuser', password='testpassword')
-    db.session.add(user)
-    db.session.commit()
+    def test_password_update(self):
+        # Simular login do usuário
+        with self.app.test_request_context():
+            login_user(self.user)
 
-    # Recupera o usuário do banco de dados
-    retrieved_user = User.query.filter_by(username='testuser').first()
+            # Preencher o formulário de alteração de senha
+            form = UpdateUserPassword(old_password='oldpassword', new_password='newsecurepassword')
 
-    # Verifica se o usuário foi criado e recuperado corretamente
-    assert retrieved_user is not None
-    assert retrieved_user.username == 'testuser'
+            # Verificar se o formulário é válido
+            self.assertTrue(form.validate())
+
+            # Simular o processo de atualização de senha
+            self.user.password = form.new_password.data
+            db.session.commit()
+
+            # Verificar se a senha foi atualizada corretamente
+            updated_user = User.query.filter_by(username='testuser').first()
+            self.assertEqual(updated_user.password, 'newsecurepassword')
+
+            # Logout do usuário
+            logout_user()
+
+if __name__ == '__main__':
+    unittest.main()
