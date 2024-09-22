@@ -32,7 +32,7 @@
             <a class="nav-item nav-link" href="{{ url_for('about') }}">About</a>
           </div>
 
-          <!-- Navbar Right Side -->
+          <!-- Navbar Right Side  -->
           <div class="navbar-nav">
             {% if current_user.is_authenticated %}
             <li class="nav-item dropdown">
@@ -89,9 +89,11 @@
     </div>
   </main>
 
-  <script src="{{ url_for('static', filename='bootstrap/js/slim.js') }}"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap/js/slim.js') }}"></script>
+  
 
 </body>
 
