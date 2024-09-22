@@ -32,7 +32,7 @@ jobs:
         run: |
           python -m pip install -r requirements.txt
       - name: Run tests
-        run: PYTHONPATH=$PYTHONPATH:. pytest
+        run: python -m pytest
 
   bandit:
     needs: test
