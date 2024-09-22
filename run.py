@@ -9,7 +9,9 @@ def set_security_headers(response):
         "default-src 'self'; "
         "script-src 'self' https://trusted-source.com; "
         "style-src 'self' https://trusted-source.com; "
-        "img-src 'self' https://trusted-image-source.com;"
+        "img-src 'self' https://trusted-image-source.com; "
+        "frame-ancestors 'none'; "
+        "form-action 'self';"
     )
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-Content-Type-Options'] = 'nosniff'
