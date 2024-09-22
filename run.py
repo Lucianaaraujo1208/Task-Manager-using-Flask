@@ -4,7 +4,11 @@ from flask import Flask, request
 # Função para adicionar cabeçalhos de segurança
 @app.after_request
 def set_security_headers(response):
-    response.headers['Content-Security-Policy'] = "default-src 'self';"
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' https://cdnjs.cloudflare.com; "
+        "style-src 'self' https://stackpath.bootstrapcdn.com;"
+    )
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['Permissions-Policy'] = 'geolocation=(self)'
