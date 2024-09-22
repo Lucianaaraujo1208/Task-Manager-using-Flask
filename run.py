@@ -1,5 +1,5 @@
 from todo_project import app
-from flask import Flask, request
+from flask import Flask, request, render_template
 
 # Função para adicionar cabeçalhos de segurança
 @app.after_request
@@ -17,6 +17,21 @@ def set_security_headers(response):
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['Permissions-Policy'] = 'geolocation=(self)'
     return response
+
+# Manipulador de erro 403
+@app.errorhandler(403)
+def forbidden(error):
+    return render_template('403.html'), 403
+
+# Manipulador de erro 404
+@app.errorhandler(404)
+def not_found(error):
+    return render_template('404.html'), 404
+
+# Manipulador de erro 500
+@app.errorhandler(500)
+def internal_error(error):
+    return render_template('500.html'), 500
 
 if __name__ == '__main__':
     # Rodar o app sem o modo de depuração
