@@ -30,7 +30,7 @@ def set_security_headers(response):
 
     # ** Adicione os cabeçalhos de cache aqui **
     response.headers['Cache-Control'] = 'public, max-age=3600'  # Armazena em cache por 1 hora
-    response.headers['Expires'] = 'Tue, 20 Apr 2024 20:00:00 GMT'  # Data de expiração futura
+    response.headers['Expires'] = 'Tue, 20 Apr 2024 20:00:00 GMT'  # Data de expiração futura.
 
     return response
 
