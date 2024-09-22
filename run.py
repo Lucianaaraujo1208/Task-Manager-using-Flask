@@ -9,9 +9,8 @@ logging.basicConfig(filename='app_errors.log', level=logging.ERROR)
 @app.after_request
 def set_security_headers(response):
     # Remover cabeçalho "Server"
-    if 'Server' in response.headers:
-        del response.headers['Server']
-        
+    response.headers.pop('Server', None)
+    
     # Definindo o cabeçalho CSP
     response.headers['Content-Security-Policy'] = (
         "default-src 'self'; "
