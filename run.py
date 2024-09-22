@@ -4,10 +4,12 @@ from flask import Flask, request
 # Função para adicionar cabeçalhos de segurança
 @app.after_request
 def set_security_headers(response):
+    # Política CSP ajustada para ser mais restritiva
     response.headers['Content-Security-Policy'] = (
         "default-src 'self'; "
-        "script-src 'self' https://cdnjs.cloudflare.com; "
-        "style-src 'self' https://stackpath.bootstrapcdn.com;"
+        "script-src 'self' https://trusted-source.com; "
+        "style-src 'self' https://trusted-source.com; "
+        "img-src 'self' https://trusted-image-source.com;"
     )
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-Content-Type-Options'] = 'nosniff'
