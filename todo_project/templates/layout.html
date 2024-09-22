@@ -8,7 +8,6 @@
 
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
-
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
 
   {% if title %}
@@ -51,7 +50,6 @@
             <a class="nav-item nav-link" href="{{ url_for('login') }}">Login</a>
             <a class="nav-item nav-link" href="{{ url_for('register') }}">Register</a>
             {% endif %}
-
           </div>
         </div>
       </div>
@@ -64,8 +62,8 @@
       <div class="col-md-4">
         <div class="content-section">
           <nav class="nav flex-column">
-            <a class="nav-link" href="{{url_for('add_task')}}">Add Task</a>
-            <a class="nav-link active" href="{{url_for('all_tasks')}}">View All Tasks</a>
+            <a class="nav-link" href="{{ url_for('add_task') }}">Add Task</a>
+            <a class="nav-link active" href="{{ url_for('all_tasks') }}">View All Tasks</a>
           </nav>
         </div>
       </div>
@@ -89,12 +87,9 @@
     </div>
   </main>
 
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.js') }}"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha384-<hash>" crossorigin="anonymous"></script>
   <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap/js/slim.js') }}"></script>
-  
-
 </body>
 
 </html>
