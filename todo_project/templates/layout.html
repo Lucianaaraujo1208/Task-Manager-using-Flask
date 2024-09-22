@@ -8,7 +8,6 @@
 
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
-
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
 
   {% if title %}
@@ -89,6 +88,8 @@
     </div>
   </main>
 
+  <!-- Adicionando jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="{{ url_for('static', filename='bootstrap/js/slim.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.bundle.js') }}"></script>
