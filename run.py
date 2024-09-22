@@ -11,7 +11,7 @@ def set_security_headers(response):
     if 'Server' in response.headers:
         del response.headers['Server']
         
-    # Definindo o cabeçalho CSP
+    # Definindo o cabeçalho CSP.
     response.headers['Content-Security-Policy'] = (
         "default-src 'self'; "
         "script-src 'self'; "
