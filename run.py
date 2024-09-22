@@ -14,12 +14,12 @@ def set_security_headers(response):
         
     # Definindo o cabeçalho CSP
     response.headers['Content-Security-Policy'] = (
-    "default-src 'self'; "
-    "script-src 'self' https://trustedscripts.example.com; "
-    "style-src 'self' https://trustedstyles.example.com; "
-    "img-src 'self' https://trustedimages.example.com; "
-    "frame-ancestors 'none'; "
-    "form-action 'self';"
+        "default-src 'self'; "
+        "script-src 'self' https://trustedscripts.example.com; "
+        "style-src 'self' https://trustedstyles.example.com; "
+        "img-src 'self' https://trustedimages.example.com; "
+        "frame-ancestors 'none'; "
+        "form-action 'self';"
     )
     
     # Política de Permissões
