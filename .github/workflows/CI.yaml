@@ -8,6 +8,8 @@ permissions:
   issues: write
   contents: write
   pull-requests: write
+  security-events: write
+  actions: write
 
 jobs:
   build:
@@ -60,8 +62,27 @@ jobs:
           name: Dependency-Check report
           path: ${{ github.workspace }}/reports
 
-  zap:
+  codeql:
     needs: security_analysis
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up CodeQL
+        uses: github/codeql-action/setup@v2
+        with:
+          languages: python
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: 'security'
+      - name: Upload SARIF results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
+
+  zap:
+    needs: codeql
     name: Relatório ZAP
     runs-on: ubuntu-latest
     steps:
