@@ -29,7 +29,7 @@ def set_security_headers(response):
     
     return response
 
-# Manipuladores de erro (403, 404, 500)
+# Manipuladores de erro (403, 404, 500),
 @app.errorhandler(403)
 def forbidden(error):
     return render_template('403.html'), 403
