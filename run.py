@@ -29,7 +29,7 @@ def set_security_headers(response):
     
     return response
 
-# Manipuladores de erro (403, 404, 500),
+# Manipuladores de erro (403, 404, 500)
 @app.errorhandler(403)
 def forbidden(error):
     return render_template('403.html'), 403
@@ -44,4 +44,4 @@ def internal_error(error):
     return render_template('500.html'), 500
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
