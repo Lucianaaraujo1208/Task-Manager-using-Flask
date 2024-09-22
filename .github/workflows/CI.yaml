@@ -106,7 +106,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ZAP Scan Report
-          path: report_html.html  # Ou o caminho onde o relatório do ZAP foi salvo
+          path: report_html.html  # Ou o caminho onde o relatório do ZAP foi salvo.
 
   pull_request:
     needs: zap
