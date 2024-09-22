@@ -9,8 +9,9 @@ logging.basicConfig(filename='app_errors.log', level=logging.ERROR)
 @app.after_request
 def set_security_headers(response):
     # Remover cabeçalho "Server"
-    response.headers.pop('Server', None)
-    
+    if 'Server' in response.headers:
+        del response.headers['Server']
+
     # Definindo o cabeçalho CSP
     response.headers['Content-Security-Policy'] = (
         "default-src 'self'; "
@@ -20,13 +21,17 @@ def set_security_headers(response):
         "frame-ancestors 'none'; "
         "form-action 'self';"
     )
-    
+
     # Política de Permissões
     response.headers['Permissions-Policy'] = 'geolocation=(), microphone=(), camera=()'
-    
+
     # Configuração de Cookies
     response.set_cookie('session', value='value', secure=True, httponly=True, samesite='Strict')
-    
+
+    # ** Adicione os cabeçalhos de cache aqui **
+    response.headers['Cache-Control'] = 'public, max-age=3600'  # Armazena em cache por 1 hora
+    response.headers['Expires'] = 'Tue, 20 Apr 2024 20:00:00 GMT'  # Data de expiração futura
+
     return response
 
 # Manipuladores de erro (403, 404, 500)
@@ -44,4 +49,5 @@ def internal_error(error):
     return render_template('500.html'), 500
 
 if __name__ == '__main__':
+    
     app.run(host='0.0.0.0', port=5000, debug=True)
