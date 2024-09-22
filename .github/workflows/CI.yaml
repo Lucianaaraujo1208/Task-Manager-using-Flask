@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build the Docker image
-        run: docker build -t $(date +%s) .
+        run: docker build -t task-image .
 
   test:
     needs: build
@@ -49,7 +49,7 @@ jobs:
 
   dependency_check:
     needs: test
-    name: Analises Dependency-Check
+    name: Análises Dependency-Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -85,7 +85,7 @@ jobs:
     needs: 
       - bandit
       - dependency_check
-    name: Relatório Zap
+    name: Relatório ZAP
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
