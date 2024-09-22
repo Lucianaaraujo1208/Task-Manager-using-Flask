@@ -8,8 +8,6 @@ permissions:
   issues: write
   contents: write
   pull-requests: write
-  security-events: write
-  actions: write
 
 jobs:
   build:
@@ -32,13 +30,13 @@ jobs:
           python-version: "3.9"
       - name: Install dependencies
         run: |
-          python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
+          python -m pip install -r requirements.txt
       - name: Run tests
         run: PYTHONPATH=$PYTHONPATH:. pytest
 
   bandit:
     needs: test
-    name: Bandit
+    name: Análise de Segurança com Bandit
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -48,13 +46,12 @@ jobs:
       - name: Bandit Analysis
         uses: PyCQA/bandit-action@v1
 
-  security_analysis:
-    needs: bandit
+  dependency_check:
+    needs: test
     name: Análise de Dependências
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -63,7 +60,7 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Create reports directory
         run: mkdir -p reports
-      - name: Check dependency
+      - name: Check dependencies
         uses: dependency-check/Dependency-Check_Action@main
         id: Dependency-Check
         with:
@@ -80,53 +77,60 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Dependency-Check report
-          path: ${{ github.workspace }}/reports
+          path: reports
 
-  codeql:
-    needs: security_analysis
-    name: CodeQL Analysis
+  security_analysis:
+    needs: bandit
+    name: Análise de Segurança Adicional
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up CodeQL
-        uses: github/codeql-action/init@v2
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Create reports directory
+        run: mkdir -p reports
+      - name: Run Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        id: Dependency-Check
+        with:
+          project: "Task-Manager-using-Flask"
+          path: "."
+          format: "HTML"
+          out: "reports"
+          args: >
+            --scan ./*.py
+            --scan requirements.txt
+            --failOnCVSS 7
+            --enableRetired
+      - name: Upload Security Analysis results
+        uses: actions/upload-artifact@v4
+        with:
+          name: Security Analysis report
+          path: reports
+
+  codeql_analysis:
+    needs: [test, bandit, dependency_check]
+    name: Análise de Código com CodeQL
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup CodeQL
+        uses: github/codeql-action/setup@v2
         with:
           languages: python
       - name: Run CodeQL Analysis
         uses: github/codeql-action/analyze@v2
-        with:
-          category: 'security'
-      - name: Upload SARIF results
+      - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: results.sarif  # Corrigido para o caminho relativo
+          sarif_file: results.sarif
 
-  zap:
-    needs: codeql
-    name: Relatório ZAP
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build Docker image
-        run: docker build -t task-image .
-      - name: Run application
-        run: |
-          docker run -d -p 5000:5000 --name task-manager task-image
-          sleep 30  # Aumentar tempo de espera para garantir que a aplicação está pronta
-      - name: Zap Scan
-        uses: zaproxy/action-full-scan@v0.10.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          target: "http://localhost:5000"
-          issue: false  # Desativar a criação automática de issues
-      - name: Upload ZAP report
-        uses: actions/upload-artifact@v4
-        with:
-          name: ZAP Scan Report
-          path: report_html.html  # Ou o caminho onde o relatório do ZAP foi salvo.
-
-  pull_request:
-    needs: zap
+  deploy:
+    needs: [codeql_analysis, security_analysis]
     name: Simulação de Deploy
     runs-on: ubuntu-latest
     steps:
@@ -138,7 +142,7 @@ jobs:
         uses: devops-infra/action-pull-request@v0.5.5
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          title: Pull request automático
+          title: pull automatic
           target_branch: revisao
           assignee: ${{ github.actor }}
           label: automatic
