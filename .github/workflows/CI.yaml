@@ -8,6 +8,7 @@ permissions:
   issues: write
   contents: write
   pull-requests: write
+  security-events: write
 
 jobs:
   build:
@@ -39,13 +40,8 @@ jobs:
     needs: test
     name: Bandit
     runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      actions: read
-      contents: read
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       - name: Bandit Analysis
         uses: PyCQA/bandit-action@v1
 
@@ -54,8 +50,7 @@ jobs:
     name: Análise de Dependências
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -105,8 +100,7 @@ jobs:
     name: Relatório ZAP
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       - name: Build Docker image
         run: docker build -t task-image .
       - name: Run application
@@ -130,8 +124,7 @@ jobs:
     name: Simulação de Deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Run the Action
