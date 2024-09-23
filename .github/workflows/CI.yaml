@@ -1,5 +1,16 @@
 name: Estudo
 
+stages:
+  - build # 1. build
+  - test1 # 2. test1 (Test Routes)
+  - test2 # 3. test2 (Test Integration)
+  - test3 # 4. test3 (Test Functional)
+  - security_analysis # 5. security_analysis (Bandit)
+  - security_analysis2 # 6. security_analysis2 (Dependency Check)
+  - zap # 7. zap (ZAP Security Scan)
+  - deploy # 8. deploy (Deploy Application)
+  - pull_request # 9. pull_request (Simulação de Deploy)
+
 on:
   push:
     branches: ["CI"]
@@ -10,8 +21,9 @@ permissions:
   pull-requests: write
 
 jobs:
-
+  # Primeiro estágio: Build
   build:
+    stage: build
     name: Build
     runs-on: ubuntu-latest
     steps:
@@ -19,9 +31,9 @@ jobs:
       - name: Build the Docker image
         run: docker build -t task-image .
 
+  # Estágio: Teste
   test:
     needs: build
-    name: Testes
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,11 +45,16 @@ jobs:
         run: |
           python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
       - name: Run tests
-        run: PYTHONPATH=$PYTHONPATH:. pytest
+        run: |
+          PYTHONPATH=$PYTHONPATH:. pytest tests/test_routes.py
+          PYTHONPATH=$PYTHONPATH:. pytest tests/test_integration.py
+          PYTHONPATH=$PYTHONPATH:. pytest tests/test_functional.py
 
+  # Quinto estágio: Security Analysis (Bandit)
   bandit:
+    stage: security_analysis
     needs: test
-    name: Bandit 
+    name: Bandit Security Analysis
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -47,22 +64,17 @@ jobs:
       - name: Bandit Analysis
         uses: PyCQA/bandit-action@v1
 
+  # Sexto estágio: Security Analysis2 (Dependency Check)
   dependency_check:
-    needs: test
-    name: Análises Dependency-Check
+    stage: security_analysis2
+    needs: bandit
+    name: Dependency-Check Analysis
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
+      - uses: actions/checkout@v4
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
-      - name: Create reports directory
-        run: mkdir -p reports
-      - name: Check dependency
+      - name: Check dependencies
         uses: dependency-check/Dependency-Check_Action@main
         id: Dependency-Check
         with:
@@ -75,54 +87,65 @@ jobs:
             --scan requirements.txt
             --failOnCVSS 7
             --enableRetired
-      - name: Upload results
-        uses: actions/upload-artifact@v4
-        with:
-          name: Dependency-Check report
-          path: ${{github.workspace}}/reports
 
+  # Sétimo estágio: ZAP Security Scan.
   zap:
-    needs: 
+    stage: zap
+    needs:
       - bandit
       - dependency_check
-    name: Relatório ZAP
+    name: ZAP Security Scan
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       - name: Build Docker image
         run: docker build -t task-image .
       - name: Run application
         run: |
           docker run -d -p 5000:5000 --name task-manager task-image
-          sleep 30  # Aumentar tempo de espera para garantir que a aplicação está pronta
+          sleep 30
       - name: Zap Scan
         uses: zaproxy/action-full-scan@v0.10.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: "http://localhost:5000"
-          issue: false  # Desativar a criação automática de issues.
+          issue: false
       - name: Upload ZAP report
         uses: actions/upload-artifact@v4
         with:
           name: ZAP Scan Report
-          path: report_html.html  # Ou o caminho onde o relatório do ZAP foi salvo...
+          path: report_html.html
 
-  pull_request:
+  # Oitavo estágio: Deploy.
+  deploy:
+    stage: deploy
     needs: zap
-    name: Simulação de Deploy
+    name: Deploy Application
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Run the Action
-        uses: devops-infra/action-pull-request@v0.5.5
+      - name: Deploy
+        run: echo "Deploying application"
+
+  # Nono estágio: Pull Request Check.
+  pull_request:
+    stage: pull_request
+    needs: build
+    name: Pull Request Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          title: pull automatic
-          target_branch: revisao
-          assignee: ${{ github.actor }}
-          label: automatic
-          get_diff: true
+          python-version: "3.9"
+      - name: Install dependencies
+        run: |
+          python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
+      - name: Run tests for pull request validation
+        run: |
+          PYTHONPATH=$PYTHONPATH:. pytest tests/test_routes.py
+          PYTHONPATH=$PYTHONPATH:. pytest tests/test_integration.py
+          PYTHONPATH=$PYTHONPATH:. pytest tests/test_functional.py
