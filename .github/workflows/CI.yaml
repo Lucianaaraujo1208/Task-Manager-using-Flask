@@ -1,15 +1,5 @@
 name: Estudo
 
-stages:
-  - build # 1. build
-  - test1 # 2. test1 (Test Routes)
-  - test2 # 3. test2 (Test Integration)
-  - test3 # 4. test3 (Test Functional)
-  - security_analysis # 5. security_analysis (Bandit)
-  - security_analysis2 # 6. security_analysis2 (Dependency Check)
-  - zap # 7. zap (ZAP Security Scan)
-  - deploy # 8. deploy (Deploy Application)
-  - pull_request # 9. pull_request (Simulação de Deploy)
 
 on:
   push:
@@ -20,10 +10,20 @@ permissions:
   contents: write
   pull-requests: write
 
+# Lista dos Stages
+# 1. build
+# 2. test1 (Test Routes)
+# 3. test2 (Test Integration)
+# 4. test3 (Test Functional)
+# 5. security_analysis (Bandit)
+# 6. security_analysis2 (Dependency Check)
+# 7. zap (ZAP Security Scan)
+# 8. deploy (Deploy Application)
+# 9. pull_request (Simulação de Deploy)
+
 jobs:
   # Primeiro estágio: Build
   build:
-    stage: build
     name: Build
     runs-on: ubuntu-latest
     steps:
@@ -52,7 +52,6 @@ jobs:
 
   # Quinto estágio: Security Analysis (Bandit)
   bandit:
-    stage: security_analysis
     needs: test
     name: Bandit Security Analysis
     runs-on: ubuntu-latest
@@ -66,7 +65,6 @@ jobs:
 
   # Sexto estágio: Security Analysis2 (Dependency Check)
   dependency_check:
-    stage: security_analysis2
     needs: bandit
     name: Dependency-Check Analysis
     runs-on: ubuntu-latest
@@ -90,7 +88,6 @@ jobs:
 
   # Sétimo estágio: ZAP Security Scan.
   zap:
-    stage: zap
     needs:
       - bandit
       - dependency_check
@@ -118,7 +115,7 @@ jobs:
 
   # Oitavo estágio: Deploy.
   deploy:
-    stage: deploy
+    
     needs: zap
     name: Deploy Application
     runs-on: ubuntu-latest
@@ -131,7 +128,7 @@ jobs:
 
   # Nono estágio: Pull Request Check.
   pull_request:
-    stage: pull_request
+    
     needs: build
     name: Pull Request Check
     runs-on: ubuntu-latest
