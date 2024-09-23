@@ -8,6 +8,7 @@ permissions:
   issues: write
   contents: write
   pull-requests: write
+  security-events: write
 
 jobs:
 
@@ -31,25 +32,28 @@ jobs:
           python-version: "3.9"
       - name: Install dependencies
         run: |
-          python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
       - name: Run tests
-        run: PYTHONPATH=$PYTHONPATH:. pytest
+        run: python -m pytest
 
   bandit:
     needs: test
-    name: Bandit 
+    name: Bandit
     runs-on: ubuntu-latest
     permissions:
       security-events: write
       actions: read
       contents: read
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Bandit Analysis
         uses: PyCQA/bandit-action@v1
 
-  dependency_check:
-    needs: test
-    name: Análises Dependency-Check
+  security_analysis:
+    needs: bandit
+    name: Análise de Dependências
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -75,16 +79,30 @@ jobs:
             --scan requirements.txt
             --failOnCVSS 7
             --enableRetired
-      - name: Upload results
+      - name: Upload Dependency Check results
         uses: actions/upload-artifact@v4
         with:
           name: Dependency-Check report
-          path: ${{github.workspace}}/reports
+          path: ${{ github.workspace }}/reports
+
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: python
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+      - name: Upload CodeQL Results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
 
   zap:
-    needs: 
-      - bandit
-      - dependency_check
+    needs: [bandit, security_analysis]
     name: Relatório ZAP
     runs-on: ubuntu-latest
     steps:
@@ -95,18 +113,18 @@ jobs:
       - name: Run application
         run: |
           docker run -d -p 5000:5000 --name task-manager task-image
-          sleep 30  # Aumentar tempo de espera para garantir que a aplicação está pronta
+          sleep 30
       - name: Zap Scan
         uses: zaproxy/action-full-scan@v0.10.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           target: "http://localhost:5000"
-          issue: false  # Desativar a criação automática de issues
+          issue: false
       - name: Upload ZAP report
         uses: actions/upload-artifact@v4
         with:
           name: ZAP Scan Report
-          path: report_html.html  # Ou o caminho onde o relatório do ZAP foi salvo.
+          path: report_html.html
 
   pull_request:
     needs: zap
