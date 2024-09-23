@@ -54,7 +54,7 @@ jobs:
       - name: Run pytest for Test2
         run: python -m pytest tests/test_module2.py
 
-  # Quarto estágio: Test3
+  # Quarto estágio: Test3.
   test3:
     needs: build
     name: Test3
