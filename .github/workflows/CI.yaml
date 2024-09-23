@@ -63,9 +63,9 @@ jobs:
       - name: Bandit Analysis
         uses: PyCQA/bandit-action@v1
 
-  # Sexto estágio: Security Analysis2 (Dependency Check)
+  # Sexto estágio: Security Analysis2 (Dependency Check).
   dependency_check:
-    needs: bandit
+    needs: test
     name: Dependency-Check Analysis
     runs-on: ubuntu-latest
     steps:
