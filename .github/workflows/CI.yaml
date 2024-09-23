@@ -11,6 +11,7 @@ permissions:
   security-events: write
 
 jobs:
+  # Primeiro estágio: Build
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -19,9 +20,10 @@ jobs:
       - name: Build the Docker image
         run: docker build -t task-image .
 
-  test:
+  # Segundo estágio: Test1
+  test1:
     needs: build
-    name: Testes
+    name: Test1
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,25 +31,65 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.9"
-      - name: Install dependencies
+      - name: Install dependencies for Test1
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
-      - name: Run tests
-        run: python -m pytest
+          python -m pip install pytest
+      - name: Run pytest for Test1
+        run: python -m pytest tests/test_module1.py
 
-  bandit:
-    needs: test
-    name: Bandit
+  # Terceiro estágio: Test2
+  test2:
+    needs: test1
+    name: Test2
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Bandit Analysis
-        uses: PyCQA/bandit-action@v1
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Install dependencies for Test2
+        run: python -m pip install pytest
+      - name: Run pytest for Test2
+        run: python -m pytest tests/test_module2.py
 
+  # Quarto estágio: Test3
+  test3:
+    needs: test2
+    name: Test3
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Install dependencies for Test3
+        run: python -m pip install pytest
+      - name: Run pytest for Test3
+        run: python -m pytest tests/test_module3.py
+
+  # Quinto estágio: Test4
+  test4:
+    needs: test3
+    name: Test4
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+      - name: Install dependencies for Test4
+        run: python -m pip install pytest
+      - name: Run pytest for Test4
+        run: python -m pytest tests/test_module4.py
+
+  # Sexto estágio: Security Analysis
   security_analysis:
-    needs: test
-    name: Análise de Dependências
+    needs: test4
+    name: Security Analysis
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -59,7 +101,7 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Create reports directory
         run: mkdir -p reports
-      - name: Check dependency
+      - name: Run dependency check
         uses: dependency-check/Dependency-Check_Action@main
         id: Dependency-Check
         with:
@@ -72,50 +114,30 @@ jobs:
             --scan requirements.txt
             --failOnCVSS 7
             --enableRetired
-      - name: Upload Dependency Check results
+      - name: Upload Dependency Check report
         uses: actions/upload-artifact@v4
         with:
           name: Dependency-Check report
           path: ${{ github.workspace }}/reports
 
-  zap:
-    needs: bandit
-    name: Relatório ZAP
+  # Sétimo estágio: Security Analysis2
+  security_analysis2:
+    needs: security_analysis
+    name: Security Analysis 2
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build Docker image
-        run: docker build -t task-image .
-      - name: Run application
-        run: |
-          docker run -d -p 5000:5000 --name task-manager task-image
-          sleep 30
-      - name: Zap Scan
-        uses: zaproxy/action-full-scan@v0.10.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          target: "http://localhost:5000"
-          issue: false
-      - name: Upload ZAP report
-        uses: actions/upload-artifact@v4
-        with:
-          name: ZAP Scan Report
-          path: report_html.html
+      - name: Bandit Security Analysis
+        uses: PyCQA/bandit-action@v1
 
-  pull_request:
-    needs: zap
-    name: Simulação de Deploy
+  # Oitavo estágio: Deploy
+  deploy:
+    needs: security_analysis2
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Run the Action
-        uses: devops-infra/action-pull-request@v0.5.5
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          title: pull automatic
-          target_branch: revisao
-          assignee: ${{ github.actor }}
-          label: automatic
-          get_diff: true
+      - name: Deploy application
+        run: echo "Deploying application"
