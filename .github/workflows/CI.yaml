@@ -8,10 +8,8 @@ permissions:
   issues: write
   contents: write
   pull-requests: write
-  security-events: write
 
 jobs:
-
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -33,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
+          python -m pip install pytest Flask-Testing SQLAlchemy flask_sqlalchemy flask_login flask_bcrypt flask_wtf
       - name: Run tests
         run: python -m pytest
 
@@ -52,7 +50,7 @@ jobs:
         uses: PyCQA/bandit-action@v1
 
   security_analysis:
-    needs: bandit
+    needs: test
     name: Análise de Dependências
     runs-on: ubuntu-latest
     steps:
@@ -86,6 +84,7 @@ jobs:
           path: ${{ github.workspace }}/reports
 
   codeql:
+    needs: security_analysis
     name: CodeQL Analysis
     runs-on: ubuntu-latest
     steps:
@@ -102,7 +101,7 @@ jobs:
           sarif_file: results.sarif
 
   zap:
-    needs: [bandit, security_analysis]
+    needs: bandit
     name: Relatório ZAP
     runs-on: ubuntu-latest
     steps:
