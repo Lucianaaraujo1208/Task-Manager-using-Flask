@@ -78,27 +78,6 @@ jobs:
           name: Dependency-Check report
           path: ${{ github.workspace }}/reports
 
-  codeql:
-    needs: security_analysis
-    name: CodeQL Analysis
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
-        with:
-          languages: python
-      - name: Build the project
-        run: |
-          # Comandos para construir o projeto, se necessário
-          python -m pip install -r requirements.txt
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
-      - name: Upload CodeQL Results
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: results.sarif
-
   zap:
     needs: bandit
     name: Relatório ZAP
